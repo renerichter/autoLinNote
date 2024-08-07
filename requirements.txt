@@ -1,0 +1,14 @@
+# Core packages
+huggingface-hub==0.24.5
+transformers==4.44.0
+torch==2.4.0
+scikit-learn==1.5.1
+numpy==2.0.1
+requests==2.32.3
+sentencepiece==0.2.0
+openai-whisper==20231117
+
+# Utilities and helpers
+tqdm==4.66.5
+packaging==24.1
+setuptools==72.1.0

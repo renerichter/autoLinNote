@@ -1,0 +1,13 @@
+# Setup conda-env via conda env create -f environment.yml
+
+name: autoLinNote
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+    - -r requirements.txt
+
+
