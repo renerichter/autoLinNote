@@ -1,4 +1,4 @@
-# Transcriber
+# autoLinNote
 
 ## Goal
 
@@ -35,6 +35,17 @@ Create `.vscode` folder and edit `launch.json` via `mkdir .vscode && cd .vscode 
 ```
 
 Save and continue. If no token exists, run `huggingface-cli login` to create one and use the path you get from there.
+
+## Findings
+
+* 20240808 -- HuggingFace llama-3.1-8B: stopped output-generation (for input with less then 2048 tokens) after 30min 
+
+## ToDo
+
+* [ ] find llama-3.1-8b inference-optimized models for M1 pro architecture
+* [ ] try [DistilBERT](https://huggingface.co/docs/transformers/model_doc/distilbert)
+* [ ] test ollama + llamafile implementation instead of not-for-inference-optimized hugginface libraries/models
+* [ ] 
 
 ## License
 

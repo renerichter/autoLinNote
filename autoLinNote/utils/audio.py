@@ -11,4 +11,5 @@ def extract_audio(video_path, audio_path):
         audio_path
     ]
     subprocess.run(command, check=True)
+
     print(f"Extracted audio to {audio_path}")
