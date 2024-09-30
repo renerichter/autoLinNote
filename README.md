@@ -42,10 +42,9 @@ Save and continue. If no token exists, run `huggingface-cli login` to create one
 
 ## ToDo
 
-* [ ] find llama-3.1-8b inference-optimized models for M1 pro architecture
+* [x] find llama-3.1-8b inference-optimized models for M1 pro architecture -> rather: compile using [llama.cpp](https://llama-cpp-python.readthedocs.io/en/stable/install/macos/)
 * [ ] try [DistilBERT](https://huggingface.co/docs/transformers/model_doc/distilbert)
 * [ ] test ollama + llamafile implementation instead of not-for-inference-optimized hugginface libraries/models
-* [ ] 
 
 ## License
 

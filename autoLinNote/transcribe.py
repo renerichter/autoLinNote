@@ -1,3 +1,4 @@
+from math import ceil
 from os import makedirs, path, remove
 from typing import List, Tuple
 
@@ -15,12 +16,14 @@ def load_transcript(transcript_path):
     return transcript
 
 # Extract audio
-def transcribe_audio(file_paths:list=[],whisper_model_name:str="openai/whisper-base",whisper_path:str="",transcript_path:str="",sampling_rate:int=16000,chunk_window_size:int=5,delete_video:bool=False,verbose:bool=False)->Tuple[List,list]:
+def transcribe_audio(file_paths:list=[],whisper_model_name:str="openai/whisper-base",whisper_path:str="",transcript_path:str="",sampling_rate:int=16000,chunk_window_size:int=5,char_lim=30000,delete_video:bool=False,verbose:bool=False)->Tuple[List,list]:
     chunk_size_sec_max=30
     chunk_size_sec = chunk_size_sec_max-chunk_window_size
     transcriptions = []
     transcriptions_paths = []
+    transcription_spacer = "\n\n\n\t\t\t-----------------------8<----------------------\n\n\n"
     for i,afile in enumerate(file_paths):
+        print(f"\n---------------\nWorking on file:\n{afile}\n---------------\n")
         try:
             # make sure paths are proper
             file_name_in_path_split=    afile.split("/")
@@ -29,6 +32,9 @@ def transcribe_audio(file_paths:list=[],whisper_model_name:str="openai/whisper-b
             file_name_out =             file_name_in+".m4a"
             file_path_out_proto =       path.join("/".join(file_name_in_path_split[:-2]),"audio")
             file_path_out =             path.join(file_path_out_proto,file_name_out)
+            transcript_path_proto =     path.join("/".join(afile.split("/")[:-2]),"transcripts")
+            transcript_path =           path.join(transcript_path_proto,file_name_in+".txt")
+            transcriptions_paths.append(transcript_path)
             
             # make audio if necessary
             if not (file_name_in_type == "m4a" or path.exists(file_path_out)):
@@ -40,13 +46,13 @@ def transcribe_audio(file_paths:list=[],whisper_model_name:str="openai/whisper-b
 
             
             whisper_path = f"data/local_model_copy/{whisper_model_name.split('/')[-1]}" if whisper_path=="" else whisper_path
-            transcript_path = f"results/{file_name_in}.txt" if transcript_path == "" else transcript_path
-            transcriptions_paths.append(transcript_path)
+            
 
             # Transcribe audio
             if path.exists(transcript_path):
                 transcriptions.append(load_transcript(transcript_path))
             else:
+                makedirs(transcript_path_proto,exist_ok=True)
                 # Load the Whisper model and processor
                 model, processor= get_model_and_processor(whisper_model_name, whisper_path)
 
@@ -54,7 +60,6 @@ def transcribe_audio(file_paths:list=[],whisper_model_name:str="openai/whisper-b
                 audio, sr = librosa.load(file_path_out, sr=sampling_rate)
 
                 # Process the audio -> whisper can only process 30s long audio
-                from math import ceil
                 nbr_chunks = ceil(len(audio)/sr/chunk_size_sec)
                 transcribed_chunks = []
                 for c in range(nbr_chunks):
@@ -76,7 +81,17 @@ def transcribe_audio(file_paths:list=[],whisper_model_name:str="openai/whisper-b
                     transcribed_chunks.append(processor.batch_decode(generated_ids, skip_special_tokens=True)[0])
                     
                 # Generate the transcription
-                transcriptions.append("\n".join(transcribed_chunks))
+                transcription = "\n".join(transcribed_chunks)
+                nbr_spacers = ceil(len(transcription)/char_lim)
+                new_transcription = []
+                for i in range(nbr_spacers):
+                    start = i*char_lim
+                    end = (i+1)*char_lim if i<nbr_spacers-1 else len(transcription)-1
+                    new_transcription.append(transcription[start:end])
+                    if i<nbr_spacers-1:
+                        new_transcription.append(transcription_spacer)
+
+                transcriptions.append("".join(new_transcription))
                 #store
                 with open(transcript_path,'w',encoding="utf-8") as f:
                     f.write(transcriptions[-1])

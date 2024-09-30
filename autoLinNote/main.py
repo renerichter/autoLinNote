@@ -10,7 +10,7 @@ from autoLinNote.utils.transcript import load_transformers_model_and_tokenizer
 
 def main():
     #video_path = "data/sample_video/sample.mp4"
-    file_path = "/path/to/file"
+    file_path = "/path/to/video"
     transcript_path=""
     file_list = get_file_list(file_path)
     
@@ -23,11 +23,15 @@ def main():
     transcribe_model_name = "openai/whisper-base"
     work_model_name = {'llama2':'meta-llama/Llama-2-7b-chat-hf','llama3':"meta-llama/Meta-Llama-3.1-8B",'GPTJ':'EleutherAI/gpt-j-6B'}
 
-    transcriptions,video_names =transcribe_audio(file_list,whisper_model_name=transcribe_model_name,transcript_path=transcript_path,chunk_window_size=2,verbose=True)
+    transcriptions,video_names =transcribe_audio(file_list,whisper_model_name=transcribe_model_name,transcript_path=transcript_path,chunk_window_size=2,char_lim=30000,verbose=False)
+
     
     if False:
         model, tokenizer=load_transformers_model_and_tokenizer(model_name=work_model_name["llama3"])
         response = work_on_transcription(transcription,instruction,response_path="results/response.txt",tokenizer=tokenizer,model=model,max_tokens=250,model_max_new_tokens=150,verbose=True)
+    else:
+        for i,transcript in enumerate(transcriptions):
+            print(f"\n\nPrompt for online-LLM for Transcript {i}/{len(transcriptions)}:\n-------------------------\n{instruction}\n\n'''\n{transcript}\n''' ")
     print("nice")
 
 
